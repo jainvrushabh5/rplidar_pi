@@ -84,7 +84,8 @@ public:
   explicit rplidar_node(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
   virtual ~rplidar_node();
 
-  void publish_scan(const double scan_time, ResponseNodeArray nodes, size_t node_count);
+  void publish_scan(const double scan_time, rclcpp::Time start, ResponseNodeArray nodes, size_t node_count);
+
 
   /* service callbacks */
   void stop_motor(const EmptyRequest req, EmptyResponse res);

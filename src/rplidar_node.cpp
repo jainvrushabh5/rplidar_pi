@@ -140,13 +140,13 @@ rplidar_node::~rplidar_node()
 }
 
 void rplidar_node::publish_scan(
-  const double scan_time, ResponseNodeArray nodes, size_t node_count)
+  const double scan_time, rclcpp::Time start, ResponseNodeArray nodes, size_t node_count)
 {
   static size_t scan_count = 0;
   sensor_msgs::msg::LaserScan scan_msg;
 
   /* NOTE(allenh1): time was passed in as a parameter before */
-  scan_msg.header.stamp = this->now();
+  scan_msg.header.stamp = start; 
   scan_msg.header.frame_id = frame_id_;
   scan_count++;
 
@@ -365,7 +365,7 @@ void rplidar_node::publish_loop()
         }
       }
 
-      publish_scan(scan_duration, std::move(angle_compensate_nodes), angle_compensate_nodes_count);
+      publish_scan(scan_duration, start_scan_time, std::move(angle_compensate_nodes), angle_compensate_nodes_count);
     } else {
       int start_node = 0, end_node = 0;
       int i = 0;
@@ -383,14 +383,14 @@ void rplidar_node::publish_loop()
       for (size_t x = start_node, y = 0; x < end_node; ++x, ++y) {
         valid[y] = nodes[x];
       }
-      publish_scan(scan_duration, std::move(valid), end_node - start_node + 1);
+      publish_scan(scan_duration, start_scan_time, std::move(valid), end_node - start_node + 1);
     }
   } else if (op_result == RESULT_OPERATION_FAIL) {
     // All the data is invalid, just publish them
     float angle_min = deg_2_rad(0.0f);
     float angle_max = deg_2_rad(359.0f);
 
-    publish_scan(scan_duration, std::move(nodes), count);
+    publish_scan(scan_duration, start_scan_time, std::move(nodes), count);
   }
 }
 
